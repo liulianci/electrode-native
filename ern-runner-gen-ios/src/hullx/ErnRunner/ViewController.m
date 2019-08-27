@@ -19,6 +19,8 @@
 #import <ElectrodeContainer/ElectrodeContainer.h>
 
 typedef void(^MiniAppFinishedCallback)(NSString *_Nullable);
+typedef void(^MiniAppFinishedCallbackWithJson)(id _Nullable);
+typedef BOOL(^NativeNavigation)(NSDictionary *_Nullable);
 
 @implementation ViewController
 
@@ -47,20 +49,44 @@ typedef void(^MiniAppFinishedCallback)(NSString *_Nullable);
 - (NSString * _Nonnull)rootComponentName {
     return MainMiniAppName;
 }
-    
+
 - (NSDictionary * _Nullable)properties {
     return nil;
 }
-    
+
+//`finisedCallback` is deprecated, use `finish`
+//finishedCallback, finish and nativeNavigation are optional properties
 - (MiniAppFinishedCallback _Nullable)finishedCallback {
     return ^(NSString *payload){
-        exit(0);
+        NSLog(@"finishedCallback: %@", payload);
     };
 }
-    
+
+- (MiniAppFinishedCallbackWithJson _Nullable)finish {
+    return ^(id payload) {
+        if ([payload isKindOfClass:[NSDictionary class]]) {
+            NSDictionary * dict = (NSDictionary *)payload;
+            NSLog(@"finishedCallback: %@", dict);
+        } else {
+            NSLog(@"finishedCallback: %@", payload);
+        }
+    };
+}
+
+-(NativeNavigation _Nonnull)nativeNavigation {
+    return ^BOOL(NSDictionary * _Nullable dict) {
+        return false;
+    };
+}
+
 @synthesize finishedCallback;
     
 @synthesize properties;
     
 @synthesize rootComponentName;
+
+@synthesize finish;
+
+@synthesize nativeNavigation;
+
 @end
